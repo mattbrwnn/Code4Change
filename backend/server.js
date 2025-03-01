@@ -29,3 +29,24 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+app.post("/api/create-link-token", async (req, res) => {
+    try {
+      const response = await plaidClient.linkTokenCreate({
+        user: {
+          client_user_id: "unique-user-id-123", 
+        },
+        client_name: "Code4Change",
+        products: ["transactions"],
+        country_codes: ["US"],
+        language: "en",
+        redirect_uri: "http://localhost:3000",
+      });
+  
+      res.json({ link_token: response.data.link_token });
+    } catch (error) {
+      console.error("Error creating link token:", error.response?.data || error.message);
+      res.status(500).json({ error: "Failed to create link token" });
+    }
+  });
+  
