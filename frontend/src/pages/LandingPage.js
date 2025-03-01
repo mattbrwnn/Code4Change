@@ -27,19 +27,27 @@ const LandingPage = () => {
   const { open, ready } = usePlaidLink({
     token: linkToken,
     onSuccess: async (public_token) => {
-      console.log("Public Token:", public_token);
-      const response = await fetch("http://localhost:4000/api/exchange-token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ public_token }),
-      });
+      console.log("Public Token received:", public_token);
+      
+      try {
+        const response = await fetch("http://localhost:4000/api/exchange-token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ public_token }),
+        });
 
-      const data = await response.json();
-      if (data.access_token) {
-        console.log("Access Token received:", data.access_token);
-        navigate("/dashboard");
-      } else {
-        console.error("Error exchanging token:", data);
+        const data = await response.json();
+        if (data.access_token) {
+          console.log("Access Token received:", data.access_token);
+          
+          setTimeout(() => {
+            navigate("/dashboard");
+          }, 1000);
+        } else {
+          console.error("Error exchanging token:", data);
+        }
+      } catch (error) {
+        console.error("Error exchanging public token:", error);
       }
     },
     onExit: (error) => {

@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const { Configuration, PlaidApi, PlaidEnvironments } = require("plaid");
+let savedAccessToken = "";
 
 const app = express();
 app.use(cors());
@@ -51,19 +52,64 @@ app.post("/api/create-link-token", async (req, res) => {
   });
   
 
-  app.post("/api/exchange-token", async (req, res) => {
-    const { public_token } = req.body;
+ 
+app.post("/api/exchange-token", async (req, res) => {
+  const { public_token } = req.body;
+
+  try {
+    const response = await plaidClient.itemPublicTokenExchange({ public_token });
+    savedAccessToken = response.data.access_token;
+
+    console.log("Access Token stored:", savedAccessToken);
+    res.json({ access_token: savedAccessToken });
+  } catch (error) {
+    console.error("Error exchanging public token:", error.response?.data || error.message);
+    res.status(500).json({ error: "Failed to exchange public token" });
+  }
+});
   
-    try {
-      const response = await plaidClient.itemPublicTokenExchange({ public_token });
-      const access_token = response.data.access_token;
-  
-      console.log("Access Token received:", access_token);
-      
-      res.json({ access_token });
-    } catch (error) {
-      console.error("Error exchanging public token:", error.response?.data || error.message);
-      res.status(500).json({ error: "Failed to exchange public token" });
+app.get("/api/transactions", async (req, res) => {
+  try {
+      if (!savedAccessToken) {
+          return res.status(400).json({ error: "Access token missing. Please link your bank account." });
+      }
+
+      const startDate = "2024-01-01";
+      const endDate = "2024-03-01";
+
+      console.log("Fetching transactions with access token:", savedAccessToken);
+
+      const response = await plaidClient.transactionsGet({
+          access_token: savedAccessToken,
+          start_date: startDate,
+          end_date: endDate,
+          options: { count: 100 },
+      });
+
+      console.log("Fetched transactions from Plaid:", response.data.transactions);
+      res.json({ transactions: response.data.transactions });
+  } catch (error) {
+      console.error("Error fetching transactions:", error.response?.data || error.message);
+      res.status(500).json({ error: "Failed to fetch transactions" });
+  }
+});
+
+
+app.post("/api/sandbox-generate-transactions", async (req, res) => {
+  try {
+    if (!savedAccessToken) {
+      return res.status(400).json({ error: "Access token missing. Please link your bank account." });
     }
-  });
-  
+
+    const response = await plaidClient.sandboxTransactionsRefresh({
+      access_token: savedAccessToken,
+    });
+
+    console.log("Sandbox transactions refresh triggered:", response.data);
+    res.json({ message: "Fake transactions are being generated. Wait 10-15 seconds and try again." });
+  } catch (error) {
+    console.error("Error triggering sandbox transaction refresh:", error.response?.data || error.message);
+    res.status(500).json({ error: "Failed to refresh transactions." });
+  }
+});
+
