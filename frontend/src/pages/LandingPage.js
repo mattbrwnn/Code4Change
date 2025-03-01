@@ -1,9 +1,15 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+
+
 const LandingPage = () => {
-    return (
-        <div className = "LandingPage">
-            <h2>LandingPage</h2>
-        </div>
-    )
+    const navigate = useNavigate();
+
+    const handleConnect = () => {
+
+        //go to dashboard
+        navigate('/dashboard');
+    }
 }
 
 export default LandingPage
