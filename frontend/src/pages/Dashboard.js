@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -7,14 +8,19 @@ const Dashboard = () => {
   const [transactions, setTransactions] = useState([]);
 
   useEffect(() => {
-    const fetchedDonationAmount = 123.45;
-    setDonationAmount(fetchedDonationAmount);
-
     const sampleTransactions = [
       { date: "02/28/2025", merchant: "Starbucks", amountSpent: "$4.75", roundedUp: "$0.25"},
       { date: "02/27/2025", merchant: "Amazon", amountSpent: "$19.21", roundedUp: "$0.79"},
       { date: "02/26/2025", merchant: "Target", amountSpent: "$12.99", roundedUp: "$0.01"}
     ];
+    
+    // Calculate total donation amount from rounded up values
+    const totalDonation = sampleTransactions.reduce((sum, transaction) => {
+      const roundedUpAmount = parseFloat(transaction.roundedUp.replace('$', ''));
+      return sum + roundedUpAmount;
+    }, 0);
+
+    setDonationAmount(totalDonation);
     setTransactions(sampleTransactions);
   }, []);
 
@@ -25,7 +31,9 @@ const Dashboard = () => {
   return (
     <>
       <nav className="navbar">
-        <div className="logo">Change For Change</div>
+        <div className="logo">
+          <Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>Change For Change</Link>
+        </div>
         <div className="nav-links">
           <a href="#home">Home</a>
           <a href="#about">About</a>

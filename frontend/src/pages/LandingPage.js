@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { usePlaidLink } from 'react-plaid-link';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -50,7 +50,9 @@ const LandingPage = () => {
   return (
     <>
       <nav className="navbar">
-        <div className="logo">Change For Change</div>
+        <div className="logo">
+          <Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>Change For Change</Link>
+        </div>
         <div className="nav-links">
           <a href="#home">Home</a>
           <a href="#about">About</a>
@@ -65,9 +67,9 @@ const LandingPage = () => {
         <p>Turn everyday purchases into life-changing donations. Every transaction rounds up to the nearest dollar, and the extra cents go directly to healthcare clinics supporting individuals without access to care.</p>
         <div className="cta-buttons">
           <button className="btn btn-primary" onClick={open} disabled={!ready}>
-            Connect Your Bank Account
+            Get Started
           </button>
-          <button className="btn btn-secondary">Sign In</button>
+          <button className="btn btn-secondary">Learn More</button>
         </div>
 
         <div className="benefits">

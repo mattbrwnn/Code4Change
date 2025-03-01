@@ -102,6 +102,11 @@ body, html {
   margin-top: 10px;
   opacity: 0.95;
   animation: scaleIn 0.6s ease-out;
+  background: linear-gradient(135deg, #4CAF50, #81C784);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 @keyframes scaleIn {
