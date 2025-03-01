@@ -50,3 +50,20 @@ app.post("/api/create-link-token", async (req, res) => {
     }
   });
   
+
+  app.post("/api/exchange-token", async (req, res) => {
+    const { public_token } = req.body;
+  
+    try {
+      const response = await plaidClient.itemPublicTokenExchange({ public_token });
+      const access_token = response.data.access_token;
+  
+      console.log("Access Token received:", access_token);
+      
+      res.json({ access_token });
+    } catch (error) {
+      console.error("Error exchanging public token:", error.response?.data || error.message);
+      res.status(500).json({ error: "Failed to exchange public token" });
+    }
+  });
+  
