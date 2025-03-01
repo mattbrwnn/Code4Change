@@ -1,9 +1,12 @@
-const Dashboard = () => {
-    return (
-        <div className = "Dashboard">
-            <h2>Dashboard</h2>
-        </div>
-    )
-}
+import React from 'react';
 
-export default Dashboard
+const Dashboard = () => {
+  return (
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <h2>Dashboard</h2>
+      <p>Your bank account has been successfully linked!</p>
+    </div>
+  );
+};
+
+export default Dashboard;
