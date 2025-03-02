@@ -53,21 +53,38 @@ app.post("/api/create-link-token", async (req, res) => {
   
 
  
-app.post("/api/exchange-token", async (req, res) => {
-  const { public_token } = req.body;
+  app.post("/api/exchange-token", async (req, res) => {
+    const { public_token } = req.body;
 
-  try {
-    const response = await plaidClient.itemPublicTokenExchange({ public_token });
-    savedAccessToken = response.data.access_token;
+    try {
+        const response = await plaidClient.itemPublicTokenExchange({ public_token });
+        savedAccessToken = response.data.access_token;
+        console.log("Access Token stored:", savedAccessToken);
 
-    console.log("Access Token stored:", savedAccessToken);
-    res.json({ access_token: savedAccessToken });
-  } catch (error) {
-    console.error("Error exchanging public token:", error.response?.data || error.message);
-    res.status(500).json({ error: "Failed to exchange public token" });
-  }
+        console.log("Generating transactions...");
+
+        const sandboxResponse = await plaidClient.sandboxPublicTokenCreate({
+            institution_id: "ins_1",
+            initial_products: ["transactions"],
+        });
+
+        console.log("New Sandbox Public Token:", sandboxResponse.data.public_token);
+
+        const exchangeResponse = await plaidClient.itemPublicTokenExchange({
+            public_token: sandboxResponse.data.public_token,
+        });
+
+        savedAccessToken = exchangeResponse.data.access_token;
+        console.log("New Sandbox Access Token:", savedAccessToken);
+
+        res.json({ access_token: savedAccessToken, message: "Transactions will be available soon!" });
+    } catch (error) {
+        console.error("Error exchanging public token:", error.response?.data || error.message);
+        res.status(500).json({ error: "Failed to exchange public token" });
+    }
 });
-  
+
+
 app.get("/api/transactions", async (req, res) => {
   try {
       if (!savedAccessToken) {
@@ -101,15 +118,13 @@ app.post("/api/sandbox-generate-transactions", async (req, res) => {
       return res.status(400).json({ error: "Access token missing. Please link your bank account." });
     }
 
-    // Create a new sandbox account with sample transactions
     const response = await plaidClient.sandboxPublicTokenCreate({
-      institution_id: "ins_1",  // First Platypus Bank (Sandbox)
+      institution_id: "ins_1",
       initial_products: ["transactions"],
     });
 
     console.log("New Sandbox Public Token:", response.data.public_token);
 
-    // Exchange public token for access token
     const exchangeResponse = await plaidClient.itemPublicTokenExchange({
       public_token: response.data.public_token,
     });

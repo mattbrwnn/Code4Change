@@ -71,8 +71,8 @@ const LandingPage = () => {
       <div className="pattern-overlay"></div>
 
       <section className="hero">
-        <h1>Donate Your Spare Change to Support Healthcare for All</h1>
-        <p>Turn everyday purchases into life-changing donations. Every transaction rounds up to the nearest dollar, and the extra cents go directly to healthcare clinics supporting individuals without access to care.</p>
+        <h1>Donate Your Spare Change to Support Healthcare for Alachua County Residents</h1>
+        <p>Turn everyday purchases into life-changing donations. Every transaction rounds up to the nearest dollar, and the extra cents go directly to UF HealthStreet supporting individuals in Alachua County without sufficient access to care.</p>
         <div className="cta-buttons">
           <button className="btn btn-primary" onClick={open} disabled={!ready}>
             Get Started
