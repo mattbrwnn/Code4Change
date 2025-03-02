@@ -5,6 +5,7 @@ import './Dashboard.css';
 const Dashboard = () => {
   const [donationAmount, setDonationAmount] = useState(0);
   const [transactions, setTransactions] = useState([]);
+  const [savedTransactions, setSavedTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,11 +44,17 @@ const Dashboard = () => {
           };
         });
 
-        const totalDonation = formattedTransactions.reduce(
+        let storedCount = parseInt(localStorage.getItem("transactionCount")) || 0;
+        const initialSavedTransactions = formattedTransactions.slice(0, 7);
+        const remainingTransactions = formattedTransactions.slice(7 + storedCount);
+
+        setSavedTransactions(initialSavedTransactions);
+        setTransactions(remainingTransactions);
+
+        const totalDonation = remainingTransactions.reduce(
           (sum, tx) => sum + parseFloat(tx.roundedUp.replace("$", "")), 0
         );
 
-        setTransactions(formattedTransactions);
         setDonationAmount(totalDonation);
         setLoading(false);
       } catch (error) {
@@ -63,9 +70,16 @@ const Dashboard = () => {
     console.log("Navigating to donation settings...");
   };
 
-  if (loading) {
-    return <h2>Loading transactions... Please wait.</h2>; 
-  }
+  useEffect(() => {
+    if (savedTransactions.length > 0) {
+      let storedCount = parseInt(localStorage.getItem("transactionCount")) || 0;
+      if (storedCount < savedTransactions.length) {
+        const newTransaction = savedTransactions[storedCount];
+        setTransactions((prevTransactions) => [newTransaction, ...prevTransactions]);
+        localStorage.setItem("transactionCount", storedCount + 1);
+      }
+    }
+  }, [savedTransactions]);
 
   return (
     <>
@@ -97,7 +111,11 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {transactions.length > 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: "center" }}>Loading transactions...</td>
+                </tr>
+              ) : transactions.length > 0 ? (
                 transactions.map((tx, index) => (
                   <tr key={index}>
                     <td>{tx.date}</td>

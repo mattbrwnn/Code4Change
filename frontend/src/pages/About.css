@@ -1,0 +1,41 @@
+.about-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 100px 20px;
+  }
+  
+  .article-image {
+    width: 80%;
+    max-width: 800px;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .article-content {
+    max-width: 800px;
+    color: #fff;
+  }
+  
+  .article-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .article-content p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    margin-top: 15px;
+  }
+
+  .article-content a {
+    color: #dcf2fc;
+    font-size:1.3rem;
+    line-height: 1.6;
+    margin-bottom: 15px;
+  }
+  

@@ -75,9 +75,9 @@ const LandingPage = () => {
         <p>Turn everyday purchases into life-changing donations. Every transaction rounds up to the nearest dollar, and the extra cents go directly to UF HealthStreet supporting individuals in Alachua County without sufficient access to care.</p>
         <div className="cta-buttons">
           <button className="btn btn-primary" onClick={open} disabled={!ready}>
-            Get Started
+            Login with Plaid
           </button>
-          <button className="btn btn-secondary">Learn More</button>
+          <button className="btn btn-secondary" onClick={() => navigate('/about')}>Learn More</button>
         </div>
 
         <div className="benefits">
