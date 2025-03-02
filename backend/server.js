@@ -101,15 +101,28 @@ app.post("/api/sandbox-generate-transactions", async (req, res) => {
       return res.status(400).json({ error: "Access token missing. Please link your bank account." });
     }
 
-    const response = await plaidClient.sandboxTransactionsRefresh({
-      access_token: savedAccessToken,
+    // Create a new sandbox account with sample transactions
+    const response = await plaidClient.sandboxPublicTokenCreate({
+      institution_id: "ins_1",  // First Platypus Bank (Sandbox)
+      initial_products: ["transactions"],
     });
 
-    console.log("Sandbox transactions refresh triggered:", response.data);
-    res.json({ message: "Fake transactions are being generated. Wait 10-15 seconds and try again." });
+    console.log("New Sandbox Public Token:", response.data.public_token);
+
+    // Exchange public token for access token
+    const exchangeResponse = await plaidClient.itemPublicTokenExchange({
+      public_token: response.data.public_token,
+    });
+
+    savedAccessToken = exchangeResponse.data.access_token;
+    console.log("New Sandbox Access Token:", savedAccessToken);
+
+    res.json({ message: "New sandbox account linked with sample transactions!" });
   } catch (error) {
-    console.error("Error triggering sandbox transaction refresh:", error.response?.data || error.message);
-    res.status(500).json({ error: "Failed to refresh transactions." });
+    console.error("Error generating sandbox transactions:", error.response?.data || error.message);
+    res.status(500).json({ error: "Failed to generate transactions.", details: error.response?.data || error.message });
   }
 });
+
+
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
@@ -8,31 +7,47 @@ const Dashboard = () => {
   const [transactions, setTransactions] = useState([]);
 
   useEffect(() => {
-    const sampleTransactions = [
-      { date: "02/28/2025", merchant: "Starbucks", amountSpent: "$4.75", roundedUp: "$0.25"},
-      { date: "02/27/2025", merchant: "Amazon", amountSpent: "$19.21", roundedUp: "$0.79"},
-      { date: "02/26/2025", merchant: "Target", amountSpent: "$12.99", roundedUp: "$0.01"}
-    ];
-    
-    // Calculate total donation amount from rounded up values
-    const totalDonation = sampleTransactions.reduce((sum, transaction) => {
-      const roundedUpAmount = parseFloat(transaction.roundedUp.replace('$', ''));
-      return sum + roundedUpAmount;
-    }, 0);
+    const fetchTransactions = async () => {
+      try {
+        const response = await fetch("http://localhost:4000/api/transactions");
+        const data = await response.json();
 
-    setDonationAmount(totalDonation);
-    setTransactions(sampleTransactions);
+        if (data.transactions && Array.isArray(data.transactions)) {
+          const formattedTransactions = data.transactions.map((tx) => {
+            const amountSpent = parseFloat(tx.amount);
+            const roundedUpAmount = Math.ceil(amountSpent) - amountSpent;
+            return {
+              date: tx.date || "Unknown Date",
+              merchant: tx.merchant_name || tx.name || "Unknown Merchant",
+              amountSpent: `$${amountSpent.toFixed(2)}`,
+              roundedUp: roundedUpAmount > 0 ? `$${roundedUpAmount.toFixed(2)}` : "$0.00",
+            };
+          });
+
+          const totalDonation = formattedTransactions.reduce(
+            (sum, tx) => sum + parseFloat(tx.roundedUp.replace("$", "")), 0
+          );
+
+          setTransactions(formattedTransactions);
+          setDonationAmount(totalDonation);
+        }
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
+    };
+
+    fetchTransactions();
   }, []);
 
   const handleSettingsClick = () => {
-    console.log('Navigating to donation settings...');
+    console.log("Navigating to donation settings...");
   };
 
   return (
     <>
       <nav className="navbar">
         <div className="logo">
-          <Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>Change For Change</Link>
+          <Link to="/" style={{ color: "#fff", textDecoration: "none" }}>Change For Change</Link>
         </div>
         <div className="nav-links">
           <a href="#home">Home</a>
@@ -42,44 +57,48 @@ const Dashboard = () => {
       </nav>
 
       <div className="dashboard-container">
-      <header className="header-section">
-        <h1>You have donated</h1>
-        <div className="donation-amount">${donationAmount.toFixed(2)}</div>
-      </header>
+        <header className="header-section">
+          <h1>You have donated</h1>
+          <div className="donation-amount">${donationAmount.toFixed(2)}</div>
+        </header>
 
-      <section className="transactions-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Merchant</th>
-              <th>Amount Spent</th>
-              <th>Rounded Up Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((tx, index) => (
-              <tr key={index}>
-                <td>{tx.date}</td>
-                <td>{tx.icon} {tx.merchant}</td>
-                <td>{tx.amountSpent}</td>
-                <td>{tx.roundedUp}</td>
+        <section className="transactions-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Merchant</th>
+                <th>Amount Spent</th>
+                <th>Rounded Up Amount</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+            </thead>
+            <tbody>
+              {transactions.length > 0 ? (
+                transactions.map((tx, index) => (
+                  <tr key={index}>
+                    <td>{tx.date}</td>
+                    <td>{tx.merchant}</td>
+                    <td>{tx.amountSpent}</td>
+                    <td>{tx.roundedUp}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: "center" }}>No transactions found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </section>
 
-      <div className="controls">
-        <button className="settings-button" onClick={handleSettingsClick}>
-          Change Donation Settings
-        </button>
+        <div className="controls">
+          <button className="settings-button" onClick={handleSettingsClick}>
+            Change Donation Settings
+          </button>
+        </div>
       </div>
-    </div>
     </>
   );
 };
-
-
 
 export default Dashboard;
